@@ -32,6 +32,7 @@ app.use((req, res) => {
     message: "Route not found"
   });
 });
+console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
 
 const PORT = process.env.PORT || 5000;
 
