@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 function ResetPassword() {
   const { token } = useParams();
+  const navigate = useNavigate();
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -17,11 +18,6 @@ function ResetPassword() {
 
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match");
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      setError("Password must be at least 6 characters long");
       return;
     }
 
@@ -47,46 +43,72 @@ function ResetPassword() {
         return;
       }
 
-      setMessage(data.message);
-      setNewPassword("");
-      setConfirmPassword("");
+      setMessage("Password reset successfully!");
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     } catch (error) {
-      setError("Unable to connect to the server");
+      setError("Unable to connect to server");
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-box">
-        <h2>Reset Password</h2>
+    <div className="container min-vh-100 d-flex align-items-center justify-content-center">
+      <div
+        className="card shadow p-4"
+        style={{ maxWidth: "450px", width: "100%" }}
+      >
+        <h2 className="text-center mb-4">Reset Password</h2>
+
+        {message && (
+          <div className="alert alert-success">
+            {message}
+          </div>
+        )}
+
+        {error && (
+          <div className="alert alert-danger">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleResetPassword}>
-          <label>New Password</label>
+          <div className="mb-3">
+            <label className="form-label">New Password</label>
 
-          <input
-            type="password"
-            placeholder="Enter new password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
+            <input
+              type="password"
+              className="form-control"
+              placeholder="Enter new password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              minLength="6"
+              required
+            />
+          </div>
 
-          <label>Confirm Password</label>
+          <div className="mb-3">
+            <label className="form-label">Confirm Password</label>
 
-          <input
-            type="password"
-            placeholder="Confirm new password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+            <input
+              type="password"
+              className="form-control"
+              placeholder="Confirm new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              minLength="6"
+              required
+            />
+          </div>
 
-          <button type="submit">
+          <button
+            type="submit"
+            className="btn btn-primary w-100"
+          >
             Reset Password
           </button>
         </form>
-
-        {message && <p className="success-message">{message}</p>}
-
-        {error && <p className="error-message">{error}</p>}
       </div>
     </div>
   );
