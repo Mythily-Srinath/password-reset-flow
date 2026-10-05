@@ -89,7 +89,7 @@ function Login() {
         </form>
 
         <div className="text-center mt-3">
-          <Link to="/">Forgot Password?</Link>
+        <Link to="/forgot-password">Forgot Password?</Link>
         </div>
 
         <p className="text-center mt-2 mb-0">
