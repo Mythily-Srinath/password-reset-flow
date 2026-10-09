@@ -143,6 +143,8 @@ const forgotPassword = async (req, res) => {
       message: "Password reset link sent to your email"
     });
   } catch (error) {
+    console.error("Forgot password error:", error);
+  
     res.status(500).json({
       message: "Failed to send password reset email",
       error: error.message
