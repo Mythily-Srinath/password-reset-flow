@@ -97,6 +97,7 @@ const loginUser = async (req, res) => {
 };
 
 // Forgot password
+
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -122,35 +123,48 @@ const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    const resetLink =
+      `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: user.email,
-      subject: "Password Reset Request",
-      html: `
-        <h2>Password Reset</h2>
-        <p>Hello ${user.username},</p>
-        <p>You requested to reset your password.</p>
-        <p>Click the link below to reset your password:</p>
-        <a href="${resetLink}">${resetLink}</a>
-        <p>This link will expire in 15 minutes.</p>
-        <p>If you did not request this, please ignore this email.</p>
-      `
-    });
+    const emailResponse = await fetch(
+      "https://api.emailjs.com/api/v1.0/email/send",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          service_id: process.env.EMAILJS_SERVICE_ID,
+          template_id: process.env.EMAILJS_TEMPLATE_ID,
+          user_id: process.env.EMAILJS_PUBLIC_KEY,
+          accessToken: process.env.EMAILJS_PRIVATE_KEY,
+          template_params: {
+            to_email: user.email,
+            reset_link: resetLink
+          }
+        })
+      }
+    );
 
-    res.status(200).json({
+    const responseText = await emailResponse.text();
+
+    if (!emailResponse.ok) {
+      console.error("EmailJS error:", responseText);
+      throw new Error("EmailJS could not send the email");
+    }
+
+    return res.status(200).json({
       message: "Password reset link sent to your email"
     });
   } catch (error) {
     console.error("Forgot password error:", error);
-  
-    res.status(500).json({
-      message: "Failed to send password reset email",
-      error: error.message
+
+    return res.status(500).json({
+      message: "Failed to send password reset email"
     });
   }
 };
+
 
 module.exports = {
   registerUser,
